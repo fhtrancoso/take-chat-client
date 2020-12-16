@@ -13,16 +13,14 @@ namespace ClientTakeChat
 {
     class Program
     {
+        private const string WEBSOCKET_URI_STRING = "ws://localhost:5000/ws";
+        private const string API_REST_REQUEST_URI = "http://localhost:5000/api/users";
+
         static HttpClient _client = new HttpClient();
         static User _user = new User();
 
         static void Main(string[] args)
         {
-            //if (Process.GetProcessesByName(Process.GetCurrentProcess().ProcessName).Count() <= 2)
-            //{
-            //    Process.Start("ClientTakeChat.exe");
-            //}
-
             ValidatingUser().GetAwaiter().GetResult();
             StartWebSockets().GetAwaiter().GetResult();
         }
@@ -30,7 +28,7 @@ namespace ClientTakeChat
         static async Task<bool> CreateValidUser(User user)
         {
             var response = await _client.PostAsJsonAsync(
-                "http://localhost:23047/api/users", user);
+                API_REST_REQUEST_URI, user);
             response.EnsureSuccessStatusCode();
 
             // return URI of the created resource.
@@ -53,9 +51,9 @@ namespace ClientTakeChat
         {
             var socket = new ClientWebSocket();
 
-            await socket.ConnectAsync(new Uri($"ws://localhost:23047/ws?user={_user.Name}"), CancellationToken.None);
+            await socket.ConnectAsync(new Uri(WEBSOCKET_URI_STRING), CancellationToken.None);
 
-            var welcomeMessage = Encoding.UTF8.GetBytes($"You are registered as [{_user.Name}]. Joining #general.");
+            var welcomeMessage = Encoding.UTF8.GetBytes($"User [{_user.Name}] connected to the group.");
             await socket.SendAsync(new ArraySegment<byte>(welcomeMessage), WebSocketMessageType.Text, true, CancellationToken.None);
 
             var send = Task.Run(async () =>
