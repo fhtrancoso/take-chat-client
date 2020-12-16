@@ -1,4 +1,6 @@
-﻿namespace ClientTakeChat.Converters
+﻿using System.Text;
+
+namespace ClientTakeChat.Converters
 {
     public static class MessageConverterExtensions
     {
@@ -13,12 +15,19 @@
             var messageReturn = string.Empty;
             var userTo = string.Empty;
 
+            // I could use regex to get the strings
             if (message.Contains(ChatConstants.MESSAGE_TO_INDICATOR_CLIENT))
             {
                 var arrays = message.Split(" ");
+                var messageArray = new StringBuilder();
                 userTo = arrays[1];
-                message = arrays[2];
-                messageReturn = $"{userName}|{userTo}|{message}";
+
+                for(var i = 2; i < arrays.Length; i++)
+                {
+                    messageArray.Append($"{arrays[i]} ");
+                }
+                
+                messageReturn = $"{userName}|{userTo}|{messageArray.ToString()}";
             }
             else
             {
